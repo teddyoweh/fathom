@@ -6,7 +6,7 @@ from flask_cors import CORS,cross_origin
 app = Flask(__name__)
 CORS(app)
 
-class scraper:
+class clutch:
     def __init__(self):
         self.headers = {
             "authority": "www.linkedin.com",
@@ -29,11 +29,12 @@ class scraper:
         response = requests.get(url, headers=self.headers)
         soup = BeautifulSoup(response.content, 'html.parser')
         code_tags = soup.find_all('code')
-        
+        open('test.html','w').write(str(soup))
         def _get_birthDateOn_index_tags(code_tags):
             for _ in range(len(code_tags)):
                 if "birthDateOn" in code_tags[_].text.strip('\n').replace('null', 'None').replace('false', 'False').replace('true', 'True'):
                     return _
+ 
         code_content = code_tags[_get_birthDateOn_index_tags(code_tags)].text.strip('\n').replace('null', 'None').replace('false', 'False').replace('true', 'True')
         profile_data = eval(code_content)['included']
         self.profile_data = profile_data
@@ -49,26 +50,54 @@ class scraper:
 
     def _extract_profile_data(self, data):
         x =  {
-            'FirstName': data['multiLocaleFirstName'][0]['value'],
-            'LastName': data['lastName'],
+            'first_name': data['multiLocaleFirstName'][0]['value'],
+            'last_name': data['lastName'],
+            "name": data['multiLocaleFirstName'][0]['value'] + ' ' + data['lastName'],
             'birthDateOn': data['birthDateOn'],
             'headline': data['headline'],
             'username': data['publicIdentifier'],
             'pronoun': data['pronoun'],
             'influencer': data['influencer'],
+            "linkedin_url": f"https://www.linkedin.com/in/{data['publicIdentifier']}",
+            
         }
  
         contactinfo = self._get_profile_contact(x['username'])
         x.update(contactinfo)
         return x
         
-        
+    def get_posts(self, url):
+        url = "https://www.linkedin.com/in/teddyoweh/recent-activity/all/"
+        response = requests.get(url, headers=self.headers)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        code_tags = soup.find_all('code')
+        data =soup.find('div',class_='scaffold-finite-scroll__content').find('ul').find_all('li',class_='profile-creator-shared-feed-update__container')    
+        print(len(data))
+        posts = []
+        for x in range(len(data)):
+            try:
+                item =data[x].find('div',id='fie-impression-container')
+                post = {}
+            
+                post['poster_name'] = item.find('span', class_='update-components-actor__name').text.strip()
+                post['post_text'] = item.find('div', class_='update-components-text relative update-components-update-v2__commentary').text.strip()
+                post['date'] = item.find('span', class_='update-components-actor__sub-description').text.strip()
+                post['images'] = []
+                image_links = item.find_all('img', class_='ivm-view-attr__img--centered')
+                for image in image_links:
+                    post['images'].append(image['src'])
+                
+                posts.append(post)
+            except:
+                pass
+        return posts  
+ 
     def _get_profile_contact(self, username):
         url = f"https://www.linkedin.com/in/{username}/overlay/contact-info/"
         response = requests.get(url, headers=self.headers)
         soup = BeautifulSoup(response.content, 'html.parser')
         code_tags = soup.find_all('code')
-        
+        open('test.html','w').write(str(soup))
         def _get_birthDateOn_index_tags(code_tags):
             for index, tag in enumerate(code_tags):
                 if "325d8aa60877c5d1a8cc282d5c2e2e50" in tag.text.strip('\n').replace('null', 'None').replace('false', 'False').replace('true', 'True'):
@@ -171,3 +200,35 @@ class scraper:
                 print(e)
                 pass
         return result
+
+
+scraper = clutch()
+
+@app.route('/')
+def home():
+    return jsonify({'message': 'Welcome to LinkedIn Scraper API'})
+
+@app.route('/search', methods=['GET','POST'])
+@cross_origin(origin='*',headers=['Authorization', 'Content-Type', 'Accept','Access-Control-Allow-Origin'])
+def search():
+    keyword = request.json.get('keyword')
+    print(keyword   )
+    if not keyword:
+        return jsonify({'error': 'Keyword parameter is required'}), 400
+    
+    data = scraper.search(keyword)
+    return jsonify(data)
+
+@app.route('/profile', methods=['GET', 'POST'])
+@cross_origin(origin='*',headers=['Authorization', 'Content-Type', 'Accept','Access-Control-Allow-Origin'])
+def profile():
+    username =  request.json.get('username')
+    if not username:
+        return jsonify({'error': 'Username parameter is required'}), 400
+
+    url = f"https://www.linkedin.com/in/{username}"
+    data = scraper.get_profile_data(url)
+    return jsonify(data)
+
+if __name__ == '__main__':
+    app.run(debug=True)

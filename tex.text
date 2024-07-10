@@ -1,0 +1,9 @@
+<li class="social-details-social-counts__item social-details-social-counts__reactions social-details-social-counts__reactions--left-aligned">
+<button aria-label="690 reactions" class="t-black--light display-flex align-items-center social-details-social-counts__count-value social-details-social-counts__count-value-hover t-12 hoverable-link-text" type="button">
+<img alt="like" class="reactions-icon social-detail-social-counts__count-icon social-detail-social-counts__count-icon--0 reactions-icon__consumption--small data-test-reactions-icon-type-LIKE data-test-reactions-icon-theme-light" data-test-reactions-icon-theme="light" data-test-reactions-icon-type="LIKE" src="https://static.licdn.com/aero-v1/sc/h/8ekq8gho1ruaf8i7f86vd1ftt"/>
+<img alt="celebrate" class="reactions-icon social-detail-social-counts__count-icon social-detail-social-counts__count-icon--1 reactions-icon__consumption--small reactions-icon--stacked data-test-reactions-icon-type-PRAISE data-test-reactions-icon-theme-light" data-test-reactions-icon-theme="light" data-test-reactions-icon-type="PRAISE" src="https://static.licdn.com/aero-v1/sc/h/b1dl5jk88euc7e9ri50xy5qo8"/>
+<img alt="love" class="reactions-icon social-detail-social-counts__count-icon social-detail-social-counts__count-icon--2 reactions-icon__consumption--small reactions-icon--stacked data-test-reactions-icon-type-EMPATHY data-test-reactions-icon-theme-light" data-test-reactions-icon-theme="light" data-test-reactions-icon-type="EMPATHY" src="https://static.licdn.com/aero-v1/sc/h/cpho5fghnpme8epox8rdcds22"/>
+<span aria-hidden="true" class="social-details-social-counts__reactions-count">
+690                </span>
+</button>
+</li>
